@@ -1,4 +1,3 @@
-
 # 🚀 AIOps Event Correlation Dashboard
 
 ![AIOps](https://img.shields.io/badge/AIOps-Dashboard-blue.svg)
@@ -24,23 +23,25 @@ This project demonstrates a modern, event-driven **AIOps simulation platform** t
 
 ### What is demoed here?
 
-- Backend: FastAPI for event handling and graph simulation
-- Graph Analysis: NetworkX for modeling service relationships
-- UI: Plotly.js rendered inside an HTML template using FastAPI templating
-- Export: Correlated alerts are saved in JSON and CSV formats
-- Design: Aesthetic layout with Material-style dashboard and badges
+- Backend: FastAPI for event handling and graph simulation  
+- Graph Analysis: NetworkX for modeling service relationships  
+- UI: Plotly.js rendered inside an HTML template using FastAPI templating  
+- Export: Correlated alerts are saved in JSON and CSV formats  
+- Design: Aesthetic layout with Material-style dashboard and badges  
 
 ---
 
 ## 📁 Folder Structure
 
-```markdown
+```text
 aiops-lab/
 ├── aiops_event_correlation.py     # Core backend application
 ├── templates/
 │   └── graph.html                 # Frontend HTML with Plotly.js
 ├── static/
 │   └── graph.png                  # Saved PNG for fallback
+├── static_assets/
+│   └── Screenshot.png            # Dashboard screenshot for README
 ├── alerts.json / alerts.csv       # Exported alert logs
 ├── requirements.txt               # Python dependencies
 └── README.md                      # This file
@@ -57,16 +58,12 @@ git clone https://github.com/your-username/aiops-event-correlation.git
 cd aiops-event-correlation
 ```
 
----
-
 ### 2. Create & Activate Virtual Environment
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
-
----
 
 ### 3. Install Python Dependencies
 
@@ -85,15 +82,11 @@ jinja2
 plotly
 ```
 
----
-
 ### 4. Create Required Directories
 
 ```bash
-mkdir -p static templates
+mkdir -p static templates static_assets
 ```
-
----
 
 ### 5. Add `graph.html` UI Template
 
@@ -116,13 +109,23 @@ http://localhost:8000/graph   # To view interactive dashboard
 
 ---
 
+## 📸 Example Output
+
+Below is a sample graph rendered by the system with severity-coded alerts:
+
+<p align="center">
+  <img src="static_assets/Screenshot.png" alt="Graph Screenshot" width="1000" style="border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);" />
+</p>
+
+---
+
 ## 📊 Features
 
 - One-click event simulation  
 - Graph-based correlation logic  
 - Severity-colored interactive network graph  
 - Modern telemetry table  
-- JSON & CSV alert export
+- JSON & CSV alert export  
 
 ---
 
@@ -139,7 +142,7 @@ http://localhost:8000/graph   # To view interactive dashboard
 - Add node filters or severity toggles  
 - Push to Streamlit, Docker, or Hugging Face  
 - Add WebSocket real-time updates  
-- Graph export as image or PDF
+- Graph export as image or PDF  
 
 ---
 
@@ -153,4 +156,3 @@ LinkedIn: https://linkedin.com/in/harshitpandey
 ## 📄 License
 
 MIT License — use and adapt with attribution.
-````
