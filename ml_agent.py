@@ -7,20 +7,18 @@ class EventAnomalyDetector:
     def __init__(self):
         self.model = IsolationForest(n_estimators=100, contamination=0.05, random_state=42)
 
-    def train(self, event_data: pd.DataFrame):
-        features = self._prepare_features(event_data)
+    def train(self, df: pd.DataFrame):
+        features = self._prepare(df)
         self.model.fit(features)
 
-    def predict(self, event_data: pd.DataFrame):
-        features = self._prepare_features(event_data)
-        event_data['anomaly_score'] = self.model.decision_function(features)
-        event_data['is_anomaly'] = self.model.predict(features)
-        # Convert -1/1 to True/False
-        event_data['is_anomaly'] = event_data['is_anomaly'].apply(lambda x: True if x == -1 else False)
-        return event_data
+    def predict(self, df: pd.DataFrame):
+        features = self._prepare(df)
+        df['anomaly_score'] = self.model.decision_function(features)
+        df['is_anomaly'] = self.model.predict(features).tolist()
+        df['is_anomaly'] = df['is_anomaly'].apply(lambda x: True if x == -1 else False)
+        return df
 
-    def _prepare_features(self, df):
-        # Replace this with real feature engineering logic
+    def _prepare(self, df):
         df = df.copy()
         df['severity'] = df['severity'].astype(float)
         df['timestamp'] = pd.to_numeric(pd.to_datetime(df['timestamp'], errors='coerce'))
