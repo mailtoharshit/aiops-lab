@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AIOps Event Correlation Dashboard</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+  <style>
+    body { background: #f9f9f9; padding-top: 30px; }
+    .card { border-radius: 10px; }
+    .status-good { background-color: #a5d6a7; }
+    .status-warning { background-color: #ffe082; }
+    .status-danger { background-color: #ef9a9a; }
+    .status-neutral { background-color: #eeeeee; }
+    .btn-large { margin-bottom: 20px; }
+    .header-title { margin-bottom: 10px; }
+  </style>
+  <script>
+    async function runAndRefresh() {
+      const btn = document.getElementById('runBtn');
+      btn.innerText = 'Running...';
+      btn.classList.add('disabled');
+      await fetch('/run');
+      window.location.reload();
+    }
+  </script>
+</head>
+<body>
+
+  <div class="container">
+    <h4 class="center-align header-title">🔍 AIOps Event Correlation Dashboard</h4>
+
+    <div class="center-align">
+      <button id="runBtn" onclick="runAndRefresh()" class="btn-large waves-effect waves-light blue darken-3">
+        ⚡ Generate 200 Events & Correlate
+      </button>
+    </div>
+
+    <div class="card {{ 'status-' + (alert_status | default('neutral')) }} z-depth-2">
+      <div class="card-content">
+        <span class="card-title">📊 Telemetry Summary</span>
+        <ul class="collection">
+          <li class="collection-item">Total Events: <strong>{{ total_events }}</strong></li>
+          <li class="collection-item">Root Causes Identified: <strong>{{ correlated_roots }}</strong></li>
+          <li class="collection-item">Algorithm Used: <strong>{{ telemetry.algorithm }}</strong></li>
+          <li class="collection-item">Time Taken: <strong>{{ telemetry.time_taken_sec }} sec</strong></li>
+          <li class="collection-item">Total Nodes: <strong>{{ telemetry.total_nodes }}</strong></li>
+          <li class="collection-item">Total Edges: <strong>{{ telemetry.total_edges }}</strong></li>
+          <li class="collection-item">Correlated Nodes: <strong>{{ telemetry.correlated_nodes }}</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card z-depth-1">
+      <div class="card-content">
+        <span class="card-title">🖼 Alert Graph</span>
+        <img src="{{ graph_url }}?v={{ telemetry.time_taken_sec }}" 
+             alt="Alert Graph" class="responsive-img" style="border-radius: 8px;" />
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>

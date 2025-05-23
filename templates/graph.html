@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive AIOps Graph</title>
+  <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Roboto', sans-serif; background: #f4f6f8; margin: 0; padding: 2rem; }
+    h2 { text-align: center; margin-bottom: 2rem; color: #1a237e; }
+    #metrics { max-width: 960px; margin: auto; margin-bottom: 2rem; border-radius: 10px; background: white; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    #metrics table { width: 100%; border-collapse: collapse; font-size: 1.2rem; }
+    #metrics th, #metrics td { padding: 1rem; text-align: left; border-bottom: 1px solid #e0e0e0; }
+    #metrics th { background-color: #eeeeee; }
+    #plot { height: 700px; width: 100%; max-width: 960px; margin: auto; }
+    .btn { display: block; margin: 2rem auto 1rem auto; padding: 1rem 2rem; background-color: #1a73e8; color: white; border: none; font-size: 1.2rem; border-radius: 6px; cursor: pointer; }
+    .btn:hover { background-color: #0c56d0; }
+  </style>
+</head>
+<body>
+  <h2>🔍 Interactive AIOps Event Correlation Graph</h2>
+  <button class="btn" onclick="runAndRefresh()">⚡ Generate & Refresh</button>
+  <div id="metrics">
+    <table>
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody id="metrics-table">
+        <tr><td colspan="2">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div id="plot"></div>
+
+  <script>
+    async function runAndRefresh() {
+      await fetch('/run');
+      await render();
+    }
+
+    async function render() {
+      const graphData = await fetch('/graph-data').then(r => r.json());
+      const telemetry = await fetch('/run').then(r => r.json());
+      const { nodes, edges } = graphData;
+
+      const nodeMap = {};
+      nodes.forEach((n, i) => nodeMap[n.id] = i);
+      const radius = 1.0;
+      const angleStep = 2 * Math.PI / nodes.length;
+
+      const x = [], y = [], text = [], color = [];
+      const severityColor = { CRITICAL: 'red', ERROR: 'orange', WARNING: 'yellow', INFO: 'green' };
+
+      nodes.forEach((n, i) => {
+        const angle = i * angleStep;
+        x.push(Math.cos(angle) * radius);
+        y.push(Math.sin(angle) * radius);
+        text.push(n.label + ' - ' + n.severity);
+        color.push(severityColor[n.severity] || 'gray');
+      });
+
+      const edgeX = [], edgeY = [];
+      edges.forEach(e => {
+        const sx = x[nodeMap[e.source]], sy = y[nodeMap[e.source]];
+        const tx = x[nodeMap[e.target]], ty = y[nodeMap[e.target]];
+        edgeX.push(sx, tx, null);
+        edgeY.push(sy, ty, null);
+      });
+
+      Plotly.newPlot('plot', [
+        {
+          x: edgeX, y: edgeY, mode: 'lines', type: 'scatter', line: { color: '#ccc' }, hoverinfo: 'none'
+        },
+        {
+          x, y, mode: 'markers+text', type: 'scatter', marker: {
+            size: 20, color: color, line: { width: 2, color: '#1a237e' }
+          }, text, textposition: 'top center'
+        }
+      ], {
+        margin: { l: 0, r: 0, t: 0, b: 0 }, xaxis: { visible: false }, yaxis: { visible: false }, showlegend: false
+      });
+
+      document.getElementById("metrics-table").innerHTML = `
+        <tr><td>Algorithm</td><td>${telemetry.telemetry.algorithm}</td></tr>
+        <tr><td>Time Taken (sec)</td><td>${telemetry.telemetry.time_taken_sec}</td></tr>
+        <tr><td>Total Nodes</td><td>${telemetry.telemetry.total_nodes}</td></tr>
+        <tr><td>Total Edges</td><td>${telemetry.telemetry.total_edges}</td></tr>
+        <tr><td>Correlated Nodes</td><td>${telemetry.telemetry.correlated_nodes}</td></tr>
+      `;
+    }
+
+    render();
+  </script>
+</body>
+</html>
